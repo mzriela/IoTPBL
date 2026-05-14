@@ -34,90 +34,7 @@ int memoryPattern[50]; // Stores the random color pattern
                        // Nobody can get passed 50, surely!
 
 
-// ======== SETUP ========
-
-void setup() {
-
-  Serial.begin(9600); // Starts serial monitoring for debugging
-
-  // Set LED pins as outputs
-   pinMode(redLed, OUTPUT);
-   pinMode(blueLed, OUTPUT);
-   pinMode(yellowLed, OUTPUT);
-   pinMode(greenLed, OUTPUT);
-
-  // Set Buzzer pin as output
-   pinMode(buzzerPin, OUTPUT);
-  
-  // Set button pins as input with pull-up resistors
-  // INPUT_PULLUP means buttons read low when pressed
-   pinMode(redButton, INPUT_PULLUP);
-   pinMode(blueButton, INPUT_PULLUP);
-   pinMode(yellowButton, INPUT_PULLUP);
-   pinMode(greenButton, INPUT_PULLUP);
-
-  // Set up LCD Module
-   lcd.begin(16, 2); // 16 columns and 2 rows
-   randomSeed(analogRead(A5)); // Creates random patterns
-
-  
-  // Welcome Message
-   lcd.setCursor(0, 0); // prints on the first row
-   lcd.print("Welcome To");
-
-   lcd.setCursor(0, 1); // prints on the second row
-   lcd.print("NEON MEMORY GAME");
-
-   delay(3000);
-
-   // Clear LCD
-    lcd.clear();
-    lcd.print("Loading Game...");
-
-}
-  
-
-// ========  MAIN LOOP ========
-
- void loop() {
-
-  // Start Screen 
-  if (gameStarted == false) {
-    lcd.clear();
-    
-    lcd.setCursor(0, 0); // prints on the first row
-    lcd.print("Press Any");
-    lcd.setCursor(0, 1); // prints on the second row
-    lcd.print("Button to Start"); 
-
-    // Wait for player to press button
-    waitForButton();
-
-    // Game now started
-    gameStarted = true;
-
-    lcd.clear();
-    lcd.print("Get Ready!");
-
-    // Start sound
-    tone(buzzerPin, 800, 300);
-
-    delay(2000);
-  }
-  
-  // Start the level
-   startLevel(); 
-  
-  // Show the LED pattern to memorize
-   showPattern();
-
-  // Verifies player's answers
-   checkPlayer();
- }
- 
-
-
-// ======== FUNCTIONS ======== 
+// ========  DEFINE FUNCTIONS ======== 
 
 // ------ START LEVEL ------
 
@@ -337,6 +254,93 @@ void setup() {
 
     delay(2000);
  }
+
+
+
+// ======== SETUP ========
+
+void setup() {
+
+  Serial.begin(9600); // Starts serial monitoring for debugging
+
+  // Set LED pins as outputs
+   pinMode(redLed, OUTPUT);
+   pinMode(blueLed, OUTPUT);
+   pinMode(yellowLed, OUTPUT);
+   pinMode(greenLed, OUTPUT);
+
+  // Set Buzzer pin as output
+   pinMode(buzzerPin, OUTPUT);
+  
+  // Set button pins as input with pull-up resistors
+  // INPUT_PULLUP means buttons read low when pressed
+   pinMode(redButton, INPUT_PULLUP);
+   pinMode(blueButton, INPUT_PULLUP);
+   pinMode(yellowButton, INPUT_PULLUP);
+   pinMode(greenButton, INPUT_PULLUP);
+
+  // Set up LCD Module
+   lcd.begin(16, 2); // 16 columns and 2 rows
+   randomSeed(analogRead(A5)); // Creates random patterns
+
+  
+  // Welcome Message
+   lcd.setCursor(0, 0); // prints on the first row
+   lcd.print("Welcome To");
+
+   lcd.setCursor(0, 1); // prints on the second row
+   lcd.print("NEON MEMORY GAME");
+
+   delay(3000);
+
+   // Clear LCD
+    lcd.clear();
+    lcd.print("Loading Game...");
+
+}
+  
+
+// ========  MAIN LOOP ========
+
+ void loop() {
+
+  // Start Screen 
+  if (gameStarted == false) {
+    lcd.clear();
+    
+    lcd.setCursor(0, 0); // prints on the first row
+    lcd.print("Press Any");
+    lcd.setCursor(0, 1); // prints on the second row
+    lcd.print("Button to Start"); 
+
+    // Wait for player to press button
+    waitForButton();
+
+    // Game now started
+    gameStarted = true;
+
+    lcd.clear();
+    lcd.print("Get Ready!");
+
+    // Start sound
+    tone(buzzerPin, 800, 300);
+
+    delay(2000);
+  }
+  
+  // Start the level
+   startLevel(); 
+  
+  // Show the LED pattern to memorize
+   showPattern();
+
+  // Verifies player's answers
+   checkPlayer();
+ }
+ 
+
+
+
 
 
 
