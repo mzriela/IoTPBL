@@ -4,7 +4,7 @@
 
 // ======== LCD, LEDs, BUZZER AND BUTTON PIN DEFINITIONS ========
 
-// Define pins connected to the pushbuttons
+// Define analog pins connected to the pushbuttons
 const int redButton = A0;
 const int blueButton = A1;
 const int yellowButton = A2;
@@ -13,31 +13,34 @@ const int greenButton = A3;
 // Define the LCD pin connections: RS, Enable, Data4, Data5, Data6, Data7
 const int rs = 7, en = 8, d4 = 9, d5 = 10, d6 = 11, d7 = 12;
 
-// LCD setup with defined pins
+// Create the LCD object
 LiquidCrystal lcd(rs, en, d4, d5, d6, d7);
 
-// Define pins connected to LEDs
-const int redLed = 5;
-const int blueLed = 4;
-const int yellowLed = 3;
-const int greenLed = 2;
+// Define digital pins connected to LEDs
+const int redLed = 2;
+const int blueLed = 3;
+const int yellowLed = 4;
+const int greenLed = 5;
 
-// Define pin connected to Buzzer
+// Define digital pin connected to Buzzer
 int buzzerPin = 6;
 
-// ======== GAME DATA ========
+// ======== GAME VARIABLES ========
 
 int level = 1; // Current level
-int highscore = 1;
-bool gameStarted = false;
-int memoryPattern[50]; // Stores the random pattern
+int highscore = 1; // Highest level reached
+bool gameStarted = false; // Checks if game started yet
+int memoryPattern[50]; // Stores the random color pattern
                        // Nobody can get passed 50, surely!
 
 
 // ======== SETUP ========
 
 void setup() {
-  // Set LEDs as outputs
+
+  Serial.begin(9600); // Starts serial monitoring for debugging
+
+  // Set LED pins as outputs
    pinMode(redLed, OUTPUT);
    pinMode(blueLed, OUTPUT);
    pinMode(yellowLed, OUTPUT);
@@ -47,6 +50,7 @@ void setup() {
    pinMode(buzzerPin, OUTPUT);
   
   // Set button pins as input with pull-up resistors
+  // INPUT_PULLUP means buttons read low when pressed
    pinMode(redButton, INPUT_PULLUP);
    pinMode(blueButton, INPUT_PULLUP);
    pinMode(yellowButton, INPUT_PULLUP);
@@ -54,63 +58,68 @@ void setup() {
 
   // Set up LCD Module
    lcd.begin(16, 2); // 16 columns and 2 rows
-   randomSeed(analogRead(A5)); // Random generator seed
+   randomSeed(analogRead(A5)); // Creates random patterns
 
   
   // Welcome Message
-   lcd.setCursor(0, 0);
+   lcd.setCursor(0, 0); // prints on the first row
    lcd.print("Welcome To");
 
-   lcd.setCursor(0, 1);
+   lcd.setCursor(0, 1); // prints on the second row
    lcd.print("NEON MEMORY GAME");
 
    delay(3000);
 
    // Clear LCD
     lcd.clear();
-
-   lcd.scrollDisplayLeft();
-   delay(300);
-
-   lcd.clear();
-   lcd.print("Loading Game...");
-
-
-   Serial.begin(9600); // For debugging
+    lcd.print("Loading Game...");
 
 }
   
 
-// ======== LOOP ========
+// ========  MAIN LOOP ========
 
  void loop() {
+
+  // Start Screen 
   if (gameStarted == false) {
     lcd.clear();
     
-    lcd.setCursor(0, 0);
+    lcd.setCursor(0, 0); // prints on the first row
     lcd.print("Press Any");
-    lcd.setCursor(0, 1);
-    lcd.print("Button to Start");
+    lcd.setCursor(0, 1); // prints on the second row
+    lcd.print("Button to Start"); 
 
+    // Wait for player to press button
     waitForButton();
+
+    // Game now started
     gameStarted = true;
 
     lcd.clear();
     lcd.print("Get Ready!");
+
+    // Start sound
     tone(buzzerPin, 800, 300);
 
     delay(2000);
   }
   
-  startLevel();
+  // Start the level
+   startLevel(); 
+  
+  // Show the LED pattern to memorize
+   showPattern();
 
-  showPattern();
-
-  checkPlayer();
+  // Verifies player's answers
+   checkPlayer();
  }
  
-// ======== START NEW LEVEL ========
 
+
+// ======== FUNCTIONS ======== 
+
+// ------ START LEVEL ------
 
  void startLevel() {
   lcd.clear();
@@ -119,18 +128,18 @@ void setup() {
   lcd.print("Level ");
   lcd.print(level);
 
-  // Add a new random color
+  // Add random color to pattern
   // 0 = red
   // 1 = blue
   // 2 = yellow
   // 3 = green
 
-  memoryPattern[level - 1] = random(0, 4);
+  memoryPattern[level - 1] = random(0, 4); // Adds one new random color to the memory sequence
 
   delay(1000);
  }
 
-// ======== SHOW THE PATTERN ========
+// ------ SHOW THE PATTERN ------
  void showPattern() {
    lcd.clear();
 
@@ -140,7 +149,7 @@ void setup() {
    delay(1000);
 
    // Show every color in the pattern
-    for (int spot = 0; spot < level; spot++) {
+    for (int spot = 0; spot < level; spot++) { // Repeats for every color in the current level
       glowColor(memoryPattern[spot]);
 
       delay(250);
@@ -148,29 +157,31 @@ void setup() {
     }
  }
    
-// ======== PLAYER INPUT CHECK ========
+// ------CHECK PLAYER INPUT ------
+
  void checkPlayer() {
   lcd.clear();
   
   lcd.setCursor(0, 0);
   lcd.print("Your Turn!");
 
-  // Check every button press
-   for (int spot = 0; spot < level; spot++) {
+  // Check every button player presses
+   for (int spot = 0; spot < level; spot++) { // Starts at 0, repeats until it reaches the level
+                                              // goes up by 1 each time
     int playerChoice = waitForButton();
 
      // Flash the button color
       glowColor(playerChoice);
 
     // Wrong answer
-     if (playerChoice != memoryPattern[spot]) {
+     if (playerChoice != memoryPattern[spot]) { // Checks if the player pressed the wrong button
       gameOver();
       return;
      }
    }
 
     // Correct Pattern 
-    level++;
+    level++; // Go to the next level
     if (level > highscore) {
       highscore = level;
     }
@@ -178,13 +189,14 @@ void setup() {
     lcd.clear();
     lcd.print("Correct!");
 
+   // Winning sound
     tone(buzzerPin, 1000, 300);
 
     delay(1500);
 
 }
 
-// ======== WAIT FOR BUTTON PRESS ========
+// ------ WAIT FOR BUTTON PRESS ------
  int waitForButton() {
    
    while (true) {
@@ -213,7 +225,7 @@ void setup() {
    }
  }
 
-// ======== LIGHT + SOUND FUNCTION ========
+// ------ LED + SOUND ------
  void glowColor(int colorNumber) {
   
   // ======== RED ========
@@ -262,14 +274,14 @@ void setup() {
  }
 
 
-// ======== GAME OVER FUNCTION ========
+// ------ GAME OVER ------
  void gameOver() {
   lcd.clear();
   
-  lcd.setCursor(0, 0);
+  lcd.setCursor(0, 0); // prints on the first row
   lcd.print("GAME OVER !!");
 
-  lcd.setCursor(0, 1);
+  lcd.setCursor(0, 1); // prints on the second row
   lcd.print("WOMP WOMP");
 
   // Sad buzzer sound
@@ -278,7 +290,7 @@ void setup() {
   noTone(buzzerPin);
 
   // Flash all LEDs
-   for (int flash = 0; flash < 3; flash++) {
+   for (int flash = 0; flash < 3; flash++) { // Repeats 3 times to flash the LEDs
     digitalWrite(redLed, HIGH);
     digitalWrite(blueLed, HIGH);
     digitalWrite(yellowLed, HIGH);
@@ -307,10 +319,10 @@ void setup() {
     // ======== TRY AGAIN SCREEN ========
     lcd.clear();
 
-    lcd.setCursor(0, 0);
+    lcd.setCursor(0, 0); // prints on the first row
     lcd.print("Try Again?");
 
-    lcd.setCursor(0, 1);
+    lcd.setCursor(0, 1); // prints on the second row
     lcd.print("Press Any Button");
 
     waitForButton();
