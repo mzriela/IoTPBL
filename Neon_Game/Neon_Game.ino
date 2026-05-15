@@ -1,3 +1,10 @@
+// Course: Introduction to IoT
+// Description: Memory Game
+// Author: Mariela Julia
+// Date: May 14th, 2026
+
+
+
 // ======== LIBRARY ======== 
 #include <LiquidCrystal.h> // Include the LiquidCrystal library for the LCD
 
