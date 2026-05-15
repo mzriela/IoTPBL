@@ -1,5 +1,5 @@
 # Problem Based Learning Project
-Simon says inspired game
+This was created as a problem-based learning project as a first year in IoT Electronics, with the main goal of creating a working system that uses both input and output sensors.
 
 # Description
 This memory game is an interactive Arduino-based game. The system challenges the player to memorize and repeat a growing sequence of colored LEDs using pushbuttons.
